@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App AC Infra - Pro</title>
+    <!-- Inclui a biblioteca jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #7C3AED;
+            --dark-bg: #0f172a;
+            --dark-card: #1e293b;
+            --dark-text: #e2e8f0;
+            --dark-border: #334155;
+            --success: #10b981;
+            --danger: #ef4444;
+            --gray-light: #f1f5f9;
+            --gray-medium: #94a3b8;
+            /* Cores para pavimentos e apartamentos */
+            --pav-1-bg: rgba(37, 99, 235, 0.15);
+            --pav-1-border: #2563eb;
+            --pav-2-bg: rgba(124, 58, 237, 0.15);
+            --pav-2-border: #7C3AED;
+            --pav-3-bg: rgba(245, 158, 11, 0.15);
+            --pav-3-border: #f59e0b;
+            --pav-4-bg: rgba(16, 185, 129, 0.15);
+            --pav-4-border: #10b981;
+            --pav-5-bg: rgba(239, 68, 68, 0.15);
+            --pav-5-border: #ef4444;
+            --pav-6-bg: rgba(249, 115, 22, 0.15);
+            --pav-6-border: #f97316;
+            --pav-7-bg: rgba(139, 92, 246, 0.15);
+            --pav-7-border: #8b5cf6;
+            --pav-8-bg: rgba(59, 130, 246, 0.15);
+            --pav-8-border: #3b82f6;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg), #1a2a4a);
+            color: var(--dark-text);
+            min-height: 100vh;
+            padding: 10px; /* Reduzido padding para mobile */
+            padding-bottom: 80px; /* Espaço extra para o botão flutuante */
+        }
+        .container {
+            max-width: 100%; /* Ocupa 100% da tela em mobile */
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px; /* Reduzido para mobile */
+            padding: 15px 10px; /* Reduzido padding */
+        }
+        h1 {
+            font-size: 1.8rem; /* Tamanho menor em mobile */
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px; /* Menor espaço abaixo */
+        }
+        .subtitle {
+            color: var(--gray-medium);
+            font-size: 0.9rem; /* Tamanho menor */
+        }
+        .card {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--dark-border);
+            border-radius: 12px;
+            padding: 20px 15px; /* Reduzido padding */
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        h2, h3 {
+            color: var(--primary);
+            margin-bottom: 15px; /* Reduzido para mobile */
+            font-weight: 600;
+            font-size: 1.3rem; /* Tamanho um pouco menor */
+        }
+        .form-group {
+            margin-bottom: 15px; /* Reduzido para mobile */
+        }
+        label {
+            display: block;
+            margin-bottom: 6px; /* Reduzido */
+            font-weight: 500;
+            color: var(--dark-text);
+            font-size: 0.9rem; /* Levemente menor */
+        }
+        small {
+            display: block;
+            color: var(--gray-medium);
+            font-size: 0.7rem; /* Menor em mobile */
+            margin-top: 2px; /* Menor margem */
+        }
+        input, select {
+            width: 100%;
+            padding: 10px 12px; /* Reduzido padding */
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--dark-border);
+            border-radius: 8px;
+            color: var(--dark-text);
+            font-size: 0.9rem; /* Menor fonte */
+            transition: all 0.3s ease;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+        .btn {
+            padding: 10px 16px; /* Reduzido padding */
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem; /* Menor fonte */
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center; /* Centraliza texto */
+        }
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        .btn-success {
+            background: linear-gradient(to right, var(--success), #059669);
+            color: white;
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .btn-danger {
+            background: linear-gradient(to right, var(--danger), #dc2626);
+            color: white;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+        .btn-add {
+            background: linear-gradient(to right, #10b981, #059669);
+            color: white;
+            margin-top: 10px;
+        }
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .pavimentos-grid {
+            display: flex; /* Flexbox para empilhar verticalmente em mobile */
+            flex-direction: column;
+            gap: 15px; /* Espaçamento reduzido */
+            margin-top: 15px;
+        }
+        .pavimento-item {
+            border: 1px solid var(--dark-border);
+            border-radius: 8px;
+            padding: 12px; /* Reduzido padding */
+            margin-bottom: 10px; /* Menor espaço entre itens */
+        }
+        .pavimento-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px; /* Menor espaço */
+            padding-bottom: 6px; /* Menor espaço */
+            border-bottom: 2px solid;
+        }
+        .apartamento-item {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 6px;
+            padding: 10px; /* Reduzido padding */
+            margin: 8px 0; /* Menor margem */
+        }
+        .caixa-polar-group {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px dashed var(--dark-border);
+            border-radius: 6px;
+            padding: 8px; /* Reduzido padding */
+            margin-top: 8px; /* Menor margem */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px; /* Menor margem */
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 0.85rem; /* Fonte menor para tabelas */
+        }
+        th, td {
+            border: 1px solid var(--dark-border);
+            padding: 8px 10px; /* Reduzido padding */
+            text-align: left;
+        }
+        th {
+            background: rgba(30, 41, 59, 0.9);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background: rgba(30, 41, 59, 0.4);
+        }
+        .hidden {
+            display: none;
+        }
+        .action-buttons {
+            display: flex;
+            flex-direction: column; /* Empilha botões verticalmente em mobile */
+            gap: 10px; /* Espaçamento entre botões */
+            margin-top: 15px; /* Menor margem */
+        }
+        .results-section {
+            display: none;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Duas colunas em mobile */
+            gap: 10px; /* Menor gap */
+            margin-bottom: 15px;
+        }
+        .summary-card {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 8px;
+            padding: 12px; /* Reduzido padding */
+            text-align: center;
+            border: 1px solid var(--dark-border);
+        }
+        .summary-value {
+            font-size: 1.4rem; /* Tamanho menor em mobile */
+            font-weight: 700;
+            color: var(--primary);
+            margin: 3px 0; /* Menor margem */
+        }
+        .summary-label {
+            color: var(--gray-medium);
+            font-size: 0.8rem; /* Menor */
+        }
+
+        /* Botão Flutuante */
+        .floating-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .floating-btn button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .floating-btn button:hover {
+            transform: scale(1.05); /* Efeito de escala no hover/toque */
+        }
+
+        /* Media Queries para Tablets e Desktops */
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+                padding-bottom: 20px; /* Remove espaço extra do botão flutuante em telas maiores */
+            }
+            h1 {
+                font-size: 2.5rem;
+            }
+            .subtitle {
+                font-size: 1.1rem;
+            }
+            .card {
+                padding: 25px;
+            }
+            h2, h3 {
+                font-size: 1.5rem;
+            }
+            input, select {
+                font-size: 1rem;
+            }
+            .btn {
+                font-size: 1rem;
+                padding: 12px 20px;
+            }
+            .pavimentos-grid {
+                display: grid; /* Volta para grid em telas maiores */
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Grade responsiva */
+                gap: 20px;
+            }
+            .pavimento-item {
+                padding: 15px;
+            }
+            .summary-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Volta para layout original */
+                gap: 15px;
+            }
+            .summary-value {
+                font-size: 1.8rem;
+            }
+            table {
+                font-size: 0.9rem;
+            }
+            th, td {
+                padding: 12px 15px;
+            }
+            .action-buttons {
+                flex-direction: row; /* Alinha botões horizontalmente em telas maiores */
+            }
+            .floating-btn {
+                display: none; /* Oculta botão flutuante em telas maiores */
+            }
+        }
+
+        /* Estilos específicos para o PDF gerado - Mantidos os mesmos */
+        .pdf-container {
+            width: 210mm;
+            padding: 15mm;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+            font-size: 10px;
+            line-height: 1.4;
+            background: white;
+            color: black;
+        }
+        .pdf-header {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 10px;
+        }
+        .pdf-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2563eb;
+            text-align: center;
+        }
+        .pdf-subtitle {
+            font-size: 14px;
+            font-weight: normal;
+            color: #000;
+            text-align: center;
+        }
+        .pdf-cnpj {
+            font-size: 12px;
+            color: #555;
+            text-align: center;
+        }
+        .pdf-address {
+            font-size: 12px;
+            color: #555;
+            text-align: center;
+        }
+        .pdf-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 9px;
+        }
+        .pdf-summary {
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border: 1px solid #e2e8f0;
+        }
+        .pdf-summary p {
+            margin: 3px 0;
+        }
+        .pdf-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 9px;
+        }
+        .pdf-table th, .pdf-table td {
+            border: 1px solid #000;
+            padding: 5px;
+        }
+        .pdf-table th {
+            background-color: #dbeafe;
+            font-weight: bold;
+        }
+        .pdf-footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 8px;
+            color: #555;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+        .pdf-detail-section {
+            margin-top: 15px;
+        }
+        .pdf-pavimento-title {
+            font-size: 12px;
+            font-weight: bold;
+            background-color: #dbeafe;
+            padding: 4px 6px;
+            margin: 10px 0 5px 0;
+            border-left: 3px solid #2563eb;
+        }
+        .pdf-pavimento-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            font-size: 9px;
+        }
+        .pdf-pavimento-table th, .pdf-pavimento-table td {
+            border: 1px solid #000;
+            padding: 4px;
+            text-align: left;
+        }
+        .pdf-pavimento-table th {
+            background-color: #e2e8f0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AC Infra Pro</h1>
+            <p class="subtitle">Calculadora Avançada de Infraestrutura para Ar Condicionado</p>
+        </header>
+
+        <div class="card">
+            <h2>Dados da Obra</h2>
+            <div class="form-group">
+                <label for="endereco">Endereço:</label>
+                <input type="text" id="endereco" placeholder="Ex: Rua das Flores, 123 - Centro, São Paulo/SP" required>
+            </div>
+            <div class="form-group">
+                <label for="construtora">Construtora:</label>
+                <input type="text" id="construtora" placeholder="Ex: Construtora ABC Ltda" required>
+            </div>
+            <div class="form-group">
+                <label for="edificio">Edifício:</label>
+                <input type="text" id="edificio" placeholder="Ex: Torre Alpha" required>
+            </div>
+            <button id="addPavimentoBtn" class="btn btn-primary">+ Adicionar Pavimento</button>
+        </div>
+
+        <div class="hidden" id="pavimentosSection">
+            <div class="card">
+                <h2>Pavimentos e Apartamentos</h2>
+                <div class="pavimentos-grid" id="pavimentosContainer">
+                    <!-- Pavimentos serão adicionados aqui -->
+                </div>
+                <button id="finalizarBtn" class="btn btn-success">Finalizar e Calcular Totais</button>
+            </div>
+        </div>
+
+        <div class="results-section card" id="resultsSection">
+            <h2>Resumo da Infraestrutura</h2>
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-value" id="totalPavimentosDisplay">0</div>
+                    <div class="summary-label">Pavimentos</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value" id="totalAptosDisplay">0</div>
+                    <div class="summary-label">Apartamentos</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value" id="totalTubosDisplay">0.00m</div>
+                    <div class="summary-label">Tubulação Total</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value" id="totalCaixasDisplay">0</div>
+                    <div class="summary-label">Caixas Polares Totais</div>
+                </div>
+            </div>
+
+            <div id="summaryInfo"></div>
+            <h3>Detalhamento por Apartamento e Caixas Polares</h3>
+            <table id="detalheTable">
+                <thead>
+                    <tr>
+                        <th>Pavimento</th>
+                        <th>Apartamento</th>
+                        <th>Localização Caixa</th>
+                        <th>Tipo Material</th>
+                        <th>Tubulação (m)</th>
+                        <th>Altura Caixa (cm)</th>
+                        <th>Distância Caixa (cm)</th>
+                    </tr>
+                </thead>
+                <tbody id="detalheBody">
+                    <!-- Linhas serão inseridas aqui -->
+                </tbody>
+            </table>
+            <h3>Quantitativo Total</h3>
+            <table id="totalTable">
+                <thead>
+                    <tr>
+                        <th>Material</th>
+                        <th>Quantidade Total</th>
+                    </tr>
+                </thead>
+                <tbody id="totalBody">
+                    <!-- Totais serão inseridos aqui -->
+                </tbody>
+            </table>
+
+            <div class="action-buttons">
+                <button id="exportPdfBtn" class="btn btn-success">📥 Exportar PDF</button>
+                <button id="voltarInicioBtn" class="btn btn-primary">Voltar ao Início</button>
+            </div>
+        </div>
+
+        <!-- Botão Flutuante para ações principais -->
+        <div class="floating-btn hidden" id="floatingBtn">
+            <button title="Finalizar e Calcular" id="floatingFinalizarBtn">✓</button>
+        </div>
+    </div>
+
+    <script>
+        // Obter as classes do jsPDF
+        const { jsPDF } = window.jspdf;
+
+        let pavimentos = [];
+        let pavimentoCounter = 0;
+
+        // Array de cores para pavimentos
+        const pavColors = [
+            { bg: 'var(--pav-1-bg)', border: 'var(--pav-1-border)' },
+            { bg: 'var(--pav-2-bg)', border: 'var(--pav-2-border)' },
+            { bg: 'var(--pav-3-bg)', border: 'var(--pav-3-border)' },
+            { bg: 'var(--pav-4-bg)', border: 'var(--pav-4-border)' },
+            { bg: 'var(--pav-5-bg)', border: 'var(--pav-5-border)' },
+            { bg: 'var(--pav-6-bg)', border: 'var(--pav-6-border)' },
+            { bg: 'var(--pav-7-bg)', border: 'var(--pav-7-border)' },
+            { bg: 'var(--pav-8-bg)', border: 'var(--pav-8-border)' },
+        ];
+
+        // Função para mostrar/ocultar botão flutuante
+        function toggleFloatingButton(show) {
+            const btn = document.getElementById('floatingBtn');
+            if (show && pavimentos.length > 0) {
+                btn.classList.remove('hidden');
+            } else {
+                btn.classList.add('hidden');
+            }
+        }
+
+        document.getElementById('addPavimentoBtn').addEventListener('click', function() {
+            const endereco = document.getElementById('endereco').value;
+            const construtora = document.getElementById('construtora').value;
+            const edificio = document.getElementById('edificio').value;
+
+            if (!endereco || !construtora || !edificio) {
+                alert("Por favor, preencha os dados da obra primeiro.");
+                return;
+            }
+
+            pavimentoCounter++;
+            const pavimentoId = pavimentoCounter;
+            const pavimento = {
+                id: pavimentoId,
+                numero: pavimentoId,
+                apartamentos: [],
+                cor: pavimentoId - 1
+            };
+            pavimentos.push(pavimento);
+
+            renderPavimentos();
+            document.getElementById('pavimentosSection').classList.remove('hidden');
+
+            // Atualiza o botão flutuante
+            toggleFloatingButton(true);
+        });
+
+        function addApartamento(pavimentoId) {
+            const pavimentoIndex = pavimentos.findIndex(p => p.id === pavimentoId);
+            if (pavimentoIndex !== -1) {
+                const aptoCounter = pavimentos[pavimentoIndex].apartamentos.length + 1;
+                const novoApto = {
+                    id: `${pavimentoId}-${aptoCounter}`,
+                    descricao: `Apto ${aptoCounter}`,
+                    caixasPolares: []
+                };
+                pavimentos[pavimentoIndex].apartamentos.push(novoApto);
+                renderPavimentos();
+            }
+        }
+
+        function addCaixaPolar(aptoId) {
+            const [pavId, aptoNum] = aptoId.split('-');
+            const pavimentoIndex = pavimentos.findIndex(p => p.id == pavId);
+            if (pavimentoIndex !== -1) {
+                const aptoIndex = pavimentos[pavimentoIndex].apartamentos.findIndex(a => a.id === aptoId);
+                if (aptoIndex !== -1) {
+                    const caixaId = pavimentos[pavimentoIndex].apartamentos[aptoIndex].caixasPolares.length + 1;
+                    const novaCaixa = {
+                        id: `${aptoId}-cp${caixaId}`,
+                        descricao: '',
+                        tipo_material: 'cobre',
+                        tubos: 0,
+                        altura: 0,
+                        distancia: 0
+                    };
+                    pavimentos[pavimentoIndex].apartamentos[aptoIndex].caixasPolares.push(novaCaixa);
+                    renderPavimentos();
+                }
+            }
+        }
+
+        function updateCaixaPolarValue(aptoId, caixaId, field, value) {
+            const [pavId, aptoNum] = aptoId.split('-');
+            const pavimentoIndex = pavimentos.findIndex(p => p.id == pavId);
+            if (pavimentoIndex !== -1) {
+                const aptoIndex = pavimentos[pavimentoIndex].apartamentos.findIndex(a => a.id === aptoId);
+                if (aptoIndex !== -1) {
+                    const caixaIndex = pavimentos[pavimentoIndex].apartamentos[aptoIndex].caixasPolares.findIndex(c => c.id === caixaId);
+                    if (caixaIndex !== -1) {
+                        pavimentos[pavimentoIndex].apartamentos[aptoIndex].caixasPolares[caixaIndex][field] = field === 'descricao' || field === 'tipo_material' ? value : parseFloat(value) || 0;
+                        // Recalcular totais automaticamente
+                        calcularResultados();
+                    }
+                }
+            }
+        }
+
+        function removeCaixaPolar(aptoId, caixaId) {
+            const [pavId, aptoNum] = aptoId.split('-');
+            const pavimentoIndex = pavimentos.findIndex(p => p.id == pavId);
+            if (pavimentoIndex !== -1) {
+                const aptoIndex = pavimentos[pavimentoIndex].apartamentos.findIndex(a => a.id === aptoId);
+                if (aptoIndex !== -1) {
+                    pavimentos[pavimentoIndex].apartamentos[aptoIndex].caixasPolares =
+                        pavimentos[pavimentoIndex].apartamentos[aptoIndex].caixasPolares.filter(c => c.id !== caixaId);
+                    renderPavimentos();
+                    // Recalcular totais automaticamente
+                    calcularResultados();
+                }
+            }
+        }
+
+        function removePavimento(pavimentoId) {
+            pavimentos = pavimentos.filter(p => p.id !== pavimentoId);
+            renderPavimentos();
+            if (pavimentos.length === 0) {
+                document.getElementById('pavimentosSection').classList.add('hidden');
+                // Oculta o botão flutuante se não houver mais pavimentos
+                toggleFloatingButton(false);
+            }
+        }
+
+        function removeApartamento(pavimentoId, aptoId) {
+            const pavimentoIndex = pavimentos.findIndex(p => p.id === pavimentoId);
+            if (pavimentoIndex !== -1) {
+                pavimentos[pavimentoIndex].apartamentos = pavimentos[pavimentoIndex].apartamentos.filter(a => a.id !== aptoId);
+                renderPavimentos();
+                // Recalcular totais automaticamente
+                calcularResultados();
+            }
+        }
+
+        function renderPavimentos() {
+            const container = document.getElementById('pavimentosContainer');
+            container.innerHTML = '';
+
+            pavimentos.forEach(p => {
+                const pavDiv = document.createElement('div');
+                pavDiv.className = 'pavimento-item';
+
+                // Aplica estilo com base na cor do pavimento
+                const colorIndex = p.cor % pavColors.length;
+                const colorSet = pavColors[colorIndex];
+                pavDiv.style.backgroundColor = colorSet.bg;
+                pavDiv.style.borderColor = colorSet.border;
+
+                pavDiv.innerHTML = `
+                    <div class="pavimento-header" style="border-bottom-color: ${colorSet.border};">
+                        <h3>Pavimento ${p.numero}</h3>
+                        <button class="btn btn-danger" onclick="removePavimento(${p.id})">🗑️</button>
+                    </div>
+                    <div id="aptos-${p.id}">
+                        ${p.apartamentos.map(a => `
+                            <div class="apartamento-item">
+                                <strong>${a.descricao}</strong>
+                                <div class="caixa-polar-group">
+                                    <h4>Caixas Polares (${a.caixasPolares.length})</h4>
+                                    ${a.caixasPolares.map(cp => `
+                                        <div class="form-group">
+                                            <label>Caixa Polar ${cp.id.split('-cp')[1]}</label>
+                                            <div class="form-group">
+                                                <label>Descrição/Localização:</label>
+                                                <input type="text" value="${cp.descricao}" onchange="updateCaixaPolarValue('${a.id}', '${cp.id}', 'descricao', this.value)" placeholder="Ex: Quarto 1, Suite">
+                                            </div>
+                                            <div style="display: flex; gap: 10px;">
+                                                <div style="flex: 1;">
+                                                    <label>Tipo de Material:</label>
+                                                    <select onchange="updateCaixaPolarValue('${a.id}', '${cp.id}', 'tipo_material', this.value)">
+                                                        <option value="cobre" ${cp.tipo_material === 'cobre' ? 'selected' : ''}>Cobre</option>
+                                                        <option value="multilayer" ${cp.tipo_material === 'multilayer' ? 'selected' : ''}>Multilayer</option>
+                                                    </select>
+                                                </div>
+                                                <div style="flex: 1;">
+                                                    <label>Tubulação (m):</label>
+                                                    <input type="number" step="0.01" value="${cp.tubos}" onchange="updateCaixaPolarValue('${a.id}', '${cp.id}', 'tubos', this.value)" placeholder="Metragem">
+                                                </div>
+                                            </div>
+                                            <div style="display: flex; gap: 10px;">
+                                                <div style="flex: 1;">
+                                                    <label>Altura (cm)</label>
+                                                    <input type="number" step="0.1" value="${cp.altura}" onchange="updateCaixaPolarValue('${a.id}', '${cp.id}', 'altura', this.value)" placeholder="Altura (Vertical)">
+                                                </div>
+                                                <div style="flex: 1;">
+                                                    <label>Distância (cm)</label>
+                                                    <input type="number" step="0.1" value="${cp.distancia}" onchange="updateCaixaPolarValue('${a.id}', '${cp.id}', 'distancia', this.value)" placeholder="Distância (Horizontal)">
+                                                </div>
+                                            </div>
+                                            <button class="btn btn-danger btn-sm" onclick="removeCaixaPolar('${a.id}', '${cp.id}')">🗑️ Remover</button>
+                                        </div>
+                                    `).join('')}
+                                    <button class="btn btn-add" onclick="addCaixaPolar('${a.id}')">+ Adicionar Caixa Polar</button>
+                                </div>
+                                <button class="btn btn-danger btn-sm" onclick="removeApartamento(${p.id}, '${a.id}')">🗑️ Remover Apto</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button class="btn btn-add" onclick="addApartamento(${p.id})">+ Adicionar Apartamento</button>
+                `;
+                container.appendChild(pavDiv);
+            });
+        }
+
+        document.getElementById('finalizarBtn').addEventListener('click', function() {
+            if (pavimentos.length === 0) {
+                alert("Adicione pelo menos um pavimento.");
+                return;
+            }
+
+            let hasData = false;
+            pavimentos.forEach(p => {
+                if (p.apartamentos.length > 0) {
+                    hasData = true;
+                }
+            });
+
+            if (!hasData) {
+                alert("Adicione pelo menos um apartamento com dados.");
+                return;
+            }
+
+            calcularResultados();
+        });
+
+        // Adiciona evento ao botão flutuante
+        document.getElementById('floatingFinalizarBtn').addEventListener('click', function() {
+            document.getElementById('finalizarBtn').click(); // Dispara o clique no botão principal
+        });
+
+        function calcularResultados() {
+            const endereco = document.getElementById('endereco').value;
+            const construtora = document.getElementById('construtora').value;
+            const edificio = document.getElementById('edificio').value;
+
+            let totalTubos = 0;
+            let totalCaixasPolares = 0;
+
+            const detalheBody = document.getElementById('detalheBody');
+            detalheBody.innerHTML = '';
+            pavimentos.forEach(p => {
+                p.apartamentos.forEach(a => {
+                    totalCaixasPolares += a.caixasPolares.length;
+
+                    a.caixasPolares.forEach(cp => {
+                        totalTubos += cp.tubos;
+
+                        const row = detalheBody.insertRow();
+                        const colorIndex = p.cor % pavColors.length;
+                        const bgColor = pavColors[colorIndex].bg.replace('rgba', 'rgb').replace(/[\d\.]+\)$/, '0.2)');
+                        row.style.backgroundColor = bgColor;
+
+                        row.insertCell(0).textContent = p.numero;
+                        row.insertCell(1).textContent = a.descricao;
+                        row.insertCell(2).textContent = cp.descricao || 'Localização não especificada';
+                        row.insertCell(3).textContent = cp.tipo_material === 'cobre' ? 'Cobre' : 'Multilayer';
+                        row.insertCell(4).textContent = cp.tubos.toFixed(2);
+                        row.insertCell(5).textContent = cp.altura.toFixed(1);
+                        row.insertCell(6).textContent = cp.distancia.toFixed(1);
+                    });
+                });
+            });
+
+            const totalAptos = pavimentos.reduce((acc, p) => acc + p.apartamentos.length, 0);
+            const totalPavimentos = pavimentos.length;
+
+            const totalTubosCobre = pavimentos.reduce((acc, p) => acc + p.apartamentos.reduce((aAcc, a) => aAcc + a.caixasPolares.reduce((cpAcc, cp) => cpAcc + (cp.tipo_material === 'cobre' ? cp.tubos : 0), 0), 0), 0);
+            const totalTubosMultilayer = pavimentos.reduce((acc, p) => acc + p.apartamentos.reduce((aAcc, a) => aAcc + a.caixasPolares.reduce((cpAcc, cp) => cpAcc + (cp.tipo_material === 'multilayer' ? cp.tubos : 0), 0), 0), 0);
+
+            const totalBody = document.getElementById('totalBody');
+            totalBody.innerHTML = '';
+            const rowTuboCobre = totalBody.insertRow();
+            rowTuboCobre.insertCell(0).textContent = "Tubulação Cobre (m)";
+            rowTuboCobre.insertCell(1).textContent = totalTubosCobre.toFixed(2);
+            const rowTuboMultilayer = totalBody.insertRow();
+            rowTuboMultilayer.insertCell(0).textContent = "Tubulação Multilayer (m)";
+            rowTuboMultilayer.insertCell(1).textContent = totalTubosMultilayer.toFixed(2);
+            const rowCaixaPolar = totalBody.insertRow();
+            rowCaixaPolar.insertCell(0).textContent = "Caixas Polares";
+            rowCaixaPolar.insertCell(1).textContent = totalCaixasPolares;
+
+            const summaryDiv = document.getElementById('summaryInfo');
+            summaryDiv.innerHTML = `
+                <p><strong>Endereço:</strong> ${endereco}</p>
+                <p><strong>Construtora:</strong> ${construtora}</p>
+                <p><strong>Edifício:</strong> ${edificio}</p>
+            `;
+
+            document.getElementById('totalPavimentosDisplay').textContent = totalPavimentos;
+            document.getElementById('totalAptosDisplay').textContent = totalAptos;
+            document.getElementById('totalTubosDisplay').textContent = totalTubos.toFixed(2) + 'm';
+            document.getElementById('totalCaixasDisplay').textContent = totalCaixasPolares;
+
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        document.getElementById('exportPdfBtn').addEventListener('click', function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            const pdfContainer = document.createElement('div');
+            pdfContainer.className = 'pdf-container';
+
+            const endereco = document.getElementById('endereco').value;
+            const construtora = document.getElementById('construtora').value;
+            const edificio = document.getElementById('edificio').value;
+            const totalAptos = pavimentos.reduce((acc, p) => acc + p.apartamentos.length, 0);
+            const totalPavimentos = pavimentos.length;
+            const totalTubos = pavimentos.reduce((acc, p) => acc + p.apartamentos.reduce((aAcc, a) => aAcc + a.caixasPolares.reduce((cpAcc, cp) => cpAcc + cp.tubos, 0), 0), 0);
+            const totalCaixasPolares = pavimentos.reduce((acc, p) => acc + p.apartamentos.reduce((aAcc, a) => aAcc + a.caixasPolares.length, 0), 0);
+
+            const totalTubosCobre = pavimentos.reduce((acc, p) => acc + p.apartamentos.reduce((aAcc, a) => aAcc + a.caixasPolares.reduce((cpAcc, cp) => cpAcc + (cp.tipo_material === 'cobre' ? cp.tubos : 0), 0), 0), 0);
+            const totalTubosMultilayer = pavimentos.reduce((acc, p) => acc + p.apartamentos.reduce((aAcc, a) => aAcc + a.caixasPolares.reduce((cpAcc, cp) => cpAcc + (cp.tipo_material === 'multilayer' ? cp.tubos : 0), 0), 0), 0);
+
+            let pdfContent = `
+                <div class="pdf-header">
+                    <div class="pdf-title">KAWAHALA CLIMATIZACAO LTDA</div>
+                    <div class="pdf-subtitle">CNPJ: 25.003.206/0001-04</div>
+                    <div class="pdf-address">R ALFREDO COUTINHO 95 CXPST 578 — Recife - PE<br>CEP 52061-130</div>
+                </div>
+                <div class="pdf-info">
+                    <div><strong>Endereço:</strong> ${endereco}</div>
+                    <div><strong>Construtora:</strong> ${construtora}</div>
+                    <div><strong>Edifício:</strong> ${edificio}</div>
+                </div>
+                <div class="pdf-summary">
+                    <p><strong>Resumo:</strong></p>
+                    <p>- Total de Pavimentos: ${totalPavimentos}</p>
+                    <p>- Total de Apartamentos: ${totalAptos}</p>
+                    <p>- Tubulação Total: ${totalTubos.toFixed(2)} m</p>
+                    <p>- Tubulação Cobre: ${totalTubosCobre.toFixed(2)} m</p>
+                    <p>- Tubulação Multilayer: ${totalTubosMultilayer.toFixed(2)} m</p>
+                    <p>- Caixas Polares Totais: ${totalCaixasPolares}</p>
+                </div>
+                <h3 style="font-size: 12px; margin-top: 15px;">Detalhamento por Pavimento e Apartamento</h3>
+                <div class="pdf-detail-section">
+            `;
+
+            pavimentos.forEach(pav => {
+                pdfContent += `<div class="pdf-pavimento-title">Pavimento ${pav.numero}</div>`;
+                pdfContent += `<table class="pdf-pavimento-table">
+                    <thead>
+                        <tr>
+                            <th>Apartamento</th>
+                            <th>Localização Caixa</th>
+                            <th>Tipo Material</th>
+                            <th>Tubulação (m)</th>
+                            <th>Altura Caixa (cm)</th>
+                            <th>Distância Caixa (cm)</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+                pav.apartamentos.forEach(apt => {
+                    apt.caixasPolares.forEach(cp => {
+                        pdfContent += `
+                            <tr>
+                                <td>${apt.descricao}</td>
+                                <td>${cp.descricao || 'Localização não especificada'}</td>
+                                <td>${cp.tipo_material === 'cobre' ? 'Cobre' : 'Multilayer'}</td>
+                                <td>${cp.tubos.toFixed(2)}</td>
+                                <td>${cp.altura.toFixed(1)}</td>
+                                <td>${cp.distancia.toFixed(1)}</td>
+                            </tr>
+                        `;
+                    });
+                });
+
+                pdfContent += `</tbody></table>`;
+            });
+
+            pdfContent += `
+                </div>
+                <h3 style="font-size: 12px; margin-top: 15px;">Observações</h3>
+                <p style="font-size: 10px;"><strong>A altura é definida do teto já acabado até a linha da parte de baixo da caixa de passagem, e a distância da parede é medida a partir da parede do lado esquerdo, no sentido da esquerda para direita até a lateral esquerda da caixa.</strong></p>
+                <h3 style="font-size: 12px; margin-top: 15px;">Quantitativo Total</h3>
+                <table class="pdf-table">
+                    <thead>
+                        <tr>
+                            <th>Material</th>
+                            <th>Quantidade Total (m)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Tubulação Cobre (m)</td><td>${totalTubosCobre.toFixed(2)}</td></tr>
+                        <tr><td>Tubulação Multilayer (m)</td><td>${totalTubosMultilayer.toFixed(2)}</td></tr>
+                        <tr><td>Caixas Polares</td><td>${totalCaixasPolares}</td></tr>
+                    </tbody>
+                </table>
+                <div class="pdf-footer">
+                    AC Infra Pro - Sistema de Gestão de Infraestrutura | Relatório gerado em ${new Date().toLocaleString('pt-BR')}
+                </div>
+            `;
+
+            pdfContainer.innerHTML = pdfContent;
+
+            document.body.appendChild(pdfContainer);
+
+            html2canvas(pdfContainer, { scale: 2 }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = 210;
+                const pageHeight = 297;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    doc.addPage();
+                    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                document.body.removeChild(pdfContainer);
+
+                doc.save(`Relatorio_AC_${endereco.replace(/\s+/g, '_').replace(/[^\w\s]/gi, '')}.pdf`);
+            }).catch(err => {
+                 console.error("Erro ao gerar PDF:", err);
+                 alert("Ocorreu um erro ao tentar gerar o PDF. Verifique os dados e tente novamente.");
+                 if (document.body.contains(pdfContainer)) {
+                     document.body.removeChild(pdfContainer);
+                 }
+             });
+        });
+
+        document.getElementById('voltarInicioBtn').addEventListener('click', function() {
+            pavimentos = [];
+            pavimentoCounter = 0;
+            document.getElementById('pavimentosContainer').innerHTML = '';
+            document.getElementById('pavimentosSection').classList.add('hidden');
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('endereco').value = '';
+            document.getElementById('construtora').value = '';
+            document.getElementById('edificio').value = '';
+            // Oculta o botão flutuante ao voltar ao início
+            toggleFloatingButton(false);
+        });
+
+        // Event listener para mostrar/ocultar o botão flutuante ao adicionar/remover pavimentos
+        // O estado é controlado pelas funções addPavimento e removePavimento
+    </script>
+</body>
+</html>
