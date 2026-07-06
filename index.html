@@ -3,91 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App AC Infra - Pro</title>
+    <title>KCmedidas | Levantamento de Infraestrutura AC</title>
     <!-- Inclui a biblioteca jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --secondary: #7C3AED;
-            --dark-bg: #0f172a;
-            --dark-card: #1e293b;
-            --dark-text: #e2e8f0;
-            --dark-border: #334155;
-            --success: #10b981;
-            --danger: #ef4444;
+            /* Identidade KCmedidas: apenas azul e branco */
+            --primary: #2F6FED;       /* azul principal — ação e destaque */
+            --primary-dark: #1D4ED8;
+            --secondary: #7FB2FF;     /* azul claro — apoio / segundo plano */
+            --dark-bg: #0A1420;
+            --dark-card: #101E2C;
+            --dark-card-alt: #142839;
+            --dark-text: #F3F6FA;
+            --dark-border: #223547;
+            --success: #4F9D6E;
+            --danger: #C1543F;
             --gray-light: #f1f5f9;
-            --gray-medium: #94a3b8;
-            /* Cores para pavimentos e apartamentos */
-            --pav-1-bg: rgba(37, 99, 235, 0.15);
-            --pav-1-border: #2563eb;
-            --pav-2-bg: rgba(124, 58, 237, 0.15);
-            --pav-2-border: #7C3AED;
-            --pav-3-bg: rgba(245, 158, 11, 0.15);
-            --pav-3-border: #f59e0b;
-            --pav-4-bg: rgba(16, 185, 129, 0.15);
-            --pav-4-border: #10b981;
-            --pav-5-bg: rgba(239, 68, 68, 0.15);
-            --pav-5-border: #ef4444;
-            --pav-6-bg: rgba(249, 115, 22, 0.15);
-            --pav-6-border: #f97316;
-            --pav-7-bg: rgba(139, 92, 246, 0.15);
-            --pav-7-border: #8b5cf6;
-            --pav-8-bg: rgba(59, 130, 246, 0.15);
-            --pav-8-border: #3b82f6;
+            --gray-medium: #8CA0B3;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            /* Cores para pavimentos — variações de azul apenas, diferenciadas por tom */
+            --pav-1-bg: rgba(47, 111, 237, 0.16);
+            --pav-1-border: #2F6FED;
+            --pav-2-bg: rgba(127, 178, 255, 0.14);
+            --pav-2-border: #7FB2FF;
+            --pav-3-bg: rgba(29, 78, 216, 0.20);
+            --pav-3-border: #1D4ED8;
+            --pav-4-bg: rgba(96, 139, 255, 0.16);
+            --pav-4-border: #608BFF;
+            --pav-5-bg: rgba(20, 50, 110, 0.35);
+            --pav-5-border: #3E6FD9;
+            --pav-6-bg: rgba(160, 195, 255, 0.14);
+            --pav-6-border: #A0C3FF;
+            --pav-7-bg: rgba(37, 99, 235, 0.20);
+            --pav-7-border: #2563EB;
+            --pav-8-bg: rgba(180, 205, 255, 0.12);
+            --pav-8-border: #B4CDFF;
         }
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+        html {
+            overflow-x: hidden;
+        }
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--dark-bg), #1a2a4a);
+            font-family: var(--font-body);
+            background: linear-gradient(160deg, var(--dark-bg), #0f2137 55%, var(--dark-bg));
             color: var(--dark-text);
             min-height: 100vh;
             padding: 10px; /* Reduzido padding para mobile */
-            padding-bottom: 80px; /* Espaço extra para o botão flutuante */
+            padding-bottom: 90px; /* Espaço extra para o botão flutuante */
+            overflow-x: hidden;
+            width: 100%;
         }
         .container {
-            max-width: 100%; /* Ocupa 100% da tela em mobile */
+            max-width: 720px; /* Ocupa 100% da tela em mobile, limita em telas maiores */
+            width: 100%;
             margin: 0 auto;
         }
         header {
             text-align: center;
             margin-bottom: 20px; /* Reduzido para mobile */
-            padding: 15px 10px; /* Reduzido padding */
+            padding: 18px 10px 14px; /* Reduzido padding */
+            position: relative;
+        }
+        header::after {
+            content: '';
+            display: block;
+            width: 64px;
+            height: 3px;
+            margin: 14px auto 0;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border-radius: 2px;
+        }
+        .brand-eyebrow {
+            font-family: var(--font-mono);
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            font-size: 0.65rem;
+            color: var(--secondary);
+            margin-bottom: 6px;
         }
         h1 {
-            font-size: 1.8rem; /* Tamanho menor em mobile */
+            font-family: var(--font-display);
+            font-size: 2rem; /* Tamanho menor em mobile */
             font-weight: 700;
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 5px; /* Menor espaço abaixo */
+            letter-spacing: -0.02em;
+            color: var(--dark-text);
+            margin-bottom: 6px; /* Menor espaço abaixo */
+        }
+        h1 span {
+            color: var(--primary);
         }
         .subtitle {
             color: var(--gray-medium);
             font-size: 0.9rem; /* Tamanho menor */
         }
         .card {
-            background: rgba(30, 41, 59, 0.8);
+            position: relative;
+            background: rgba(16, 30, 44, 0.85);
             backdrop-filter: blur(10px);
             border: 1px solid var(--dark-border);
-            border-radius: 12px;
-            padding: 20px 15px; /* Reduzido padding */
+            border-radius: 10px;
+            padding: 22px 16px 18px; /* Reduzido padding */
             margin-bottom: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+        /* Marca de prancheta técnica no canto superior — assinatura visual do app */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 18px;
+            height: 18px;
+            border-top: 2px solid var(--primary);
+            border-left: 2px solid var(--primary);
+            border-top-left-radius: 4px;
+            opacity: 0.85;
+        }
+        .card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 18px;
+            height: 18px;
+            border-bottom: 2px solid var(--secondary);
+            border-right: 2px solid var(--secondary);
+            border-bottom-right-radius: 4px;
+            opacity: 0.85;
         }
         h2, h3 {
-            color: var(--primary);
+            font-family: var(--font-display);
+            color: var(--dark-text);
             margin-bottom: 15px; /* Reduzido para mobile */
             font-weight: 600;
-            font-size: 1.3rem; /* Tamanho um pouco menor */
+            font-size: 1.2rem; /* Tamanho um pouco menor */
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        h2::before, h3::before {
+            content: '';
+            width: 4px;
+            height: 1em;
+            background: var(--primary);
+            border-radius: 2px;
+            display: inline-block;
         }
         .form-group {
             margin-bottom: 15px; /* Reduzido para mobile */
@@ -96,8 +168,10 @@
             display: block;
             margin-bottom: 6px; /* Reduzido */
             font-weight: 500;
-            color: var(--dark-text);
-            font-size: 0.9rem; /* Levemente menor */
+            color: var(--gray-medium);
+            font-size: 0.8rem; /* Levemente menor */
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
         small {
             display: block;
@@ -107,27 +181,34 @@
         }
         input, select {
             width: 100%;
-            padding: 10px 12px; /* Reduzido padding */
-            background: rgba(15, 23, 42, 0.5);
+            max-width: 100%;
+            padding: 11px 12px; /* Reduzido padding */
+            background: rgba(10, 20, 32, 0.6);
             border: 1px solid var(--dark-border);
             border-radius: 8px;
             color: var(--dark-text);
-            font-size: 0.9rem; /* Menor fonte */
-            transition: all 0.3s ease;
+            font-family: var(--font-body);
+            font-size: 0.95rem; /* Menor fonte */
+            transition: all 0.2s ease;
         }
         input:focus, select:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+            box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.25);
+        }
+        input[type="number"] {
+            font-family: var(--font-mono);
         }
         .btn {
-            padding: 10px 16px; /* Reduzido padding */
+            width: 100%;
+            padding: 12px 16px; /* Reduzido padding */
             border: none;
             border-radius: 8px;
             cursor: pointer;
+            font-family: var(--font-body);
             font-weight: 600;
             font-size: 0.9rem; /* Menor fonte */
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -135,36 +216,37 @@
         }
         .btn-primary {
             background: linear-gradient(to right, var(--primary), var(--primary-dark));
-            color: white;
+            color: #FFFFFF;
         }
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(47, 111, 237, 0.35);
         }
         .btn-success {
-            background: linear-gradient(to right, var(--success), #059669);
-            color: white;
+            background: linear-gradient(to right, var(--success), #3d7f58);
+            color: #0a1710;
         }
         .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(79, 157, 110, 0.3);
         }
         .btn-danger {
-            background: linear-gradient(to right, var(--danger), #dc2626);
-            color: white;
+            background: rgba(193, 84, 63, 0.15);
+            border: 1px solid rgba(193, 84, 63, 0.4);
+            color: #e79080;
+            width: auto;
         }
         .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            background: rgba(193, 84, 63, 0.28);
         }
         .btn-add {
-            background: linear-gradient(to right, #10b981, #059669);
-            color: white;
+            background: rgba(79, 168, 201, 0.12);
+            border: 1px solid rgba(79, 168, 201, 0.4);
+            color: var(--secondary);
             margin-top: 10px;
         }
         .btn-add:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            background: rgba(79, 168, 201, 0.2);
         }
         .pavimentos-grid {
             display: flex; /* Flexbox para empilhar verticalmente em mobile */
@@ -177,6 +259,8 @@
             border-radius: 8px;
             padding: 12px; /* Reduzido padding */
             margin-bottom: 10px; /* Menor espaço entre itens */
+            max-width: 100%;
+            overflow: hidden;
         }
         .pavimento-header {
             display: flex;
@@ -186,40 +270,85 @@
             padding-bottom: 6px; /* Menor espaço */
             border-bottom: 2px solid;
         }
+        .pavimento-header h3 {
+            margin-bottom: 0;
+            font-size: 1.05rem;
+        }
+        .pavimento-header h3::before {
+            display: none;
+        }
         .apartamento-item {
-            background: rgba(30, 41, 59, 0.7);
+            background: rgba(16, 30, 44, 0.7);
+            border: 1px solid rgba(255,255,255,0.05);
             border-radius: 6px;
             padding: 10px; /* Reduzido padding */
             margin: 8px 0; /* Menor margem */
         }
+        .apartamento-item > strong {
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+        }
         .caixa-polar-group {
-            background: rgba(15, 23, 42, 0.4);
+            background: rgba(10, 20, 32, 0.5);
             border: 1px dashed var(--dark-border);
             border-radius: 6px;
             padding: 8px; /* Reduzido padding */
             margin-top: 8px; /* Menor margem */
         }
+        .caixa-polar-group h4 {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--gray-medium);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 8px;
+        }
+        /* Wrapper com rolagem horizontal: evita que a tabela distorça o layout no celular */
+        .table-wrapper {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--dark-border);
+        }
+        .table-wrapper::-webkit-scrollbar {
+            height: 6px;
+        }
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background: var(--dark-border);
+            border-radius: 3px;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 12px; /* Menor margem */
-            background: rgba(15, 23, 42, 0.5);
-            border-radius: 8px;
-            overflow: hidden;
-            font-size: 0.85rem; /* Fonte menor para tabelas */
+            margin-top: 0;
+            background: rgba(10, 20, 32, 0.5);
+            font-size: 0.8rem; /* Fonte menor para tabelas */
+            font-family: var(--font-mono);
+        }
+        #detalheTable {
+            min-width: 640px; /* Garante que a tabela de 7 colunas role em vez de espremer no mobile */
         }
         th, td {
             border: 1px solid var(--dark-border);
             padding: 8px 10px; /* Reduzido padding */
             text-align: left;
+            white-space: nowrap;
         }
         th {
-            background: rgba(30, 41, 59, 0.9);
-            color: var(--primary);
+            background: rgba(20, 40, 57, 0.95);
+            color: var(--secondary);
             font-weight: 600;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            position: sticky;
+            top: 0;
         }
         tr:nth-child(even) {
-            background: rgba(30, 41, 59, 0.4);
+            background: rgba(20, 40, 57, 0.35);
         }
         .hidden {
             display: none;
@@ -229,6 +358,9 @@
             flex-direction: column; /* Empilha botões verticalmente em mobile */
             gap: 10px; /* Espaçamento entre botões */
             margin-top: 15px; /* Menor margem */
+        }
+        .action-buttons .btn {
+            width: 100%;
         }
         .results-section {
             display: none;
@@ -240,21 +372,25 @@
             margin-bottom: 15px;
         }
         .summary-card {
-            background: rgba(30, 41, 59, 0.7);
+            background: rgba(10, 20, 32, 0.6);
             border-radius: 8px;
-            padding: 12px; /* Reduzido padding */
+            padding: 14px 10px 12px; /* Reduzido padding */
             text-align: center;
             border: 1px solid var(--dark-border);
+            border-top: 2px solid var(--secondary);
         }
         .summary-value {
-            font-size: 1.4rem; /* Tamanho menor em mobile */
+            font-family: var(--font-mono);
+            font-size: 1.3rem; /* Tamanho menor em mobile */
             font-weight: 700;
             color: var(--primary);
             margin: 3px 0; /* Menor margem */
         }
         .summary-label {
             color: var(--gray-medium);
-            font-size: 0.8rem; /* Menor */
+            font-size: 0.7rem; /* Menor */
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         /* Botão Flutuante */
@@ -265,29 +401,56 @@
             z-index: 1000;
         }
         .floating-btn button {
-            width: 60px;
-            height: 60px;
+            width: 58px;
+            height: 58px;
             border-radius: 50%;
             border: none;
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-            color: white;
-            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #FFFFFF;
+            font-size: 1.4rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
         .floating-btn button:hover {
             transform: scale(1.05); /* Efeito de escala no hover/toque */
         }
 
+        /* Rodapé KCmedidas */
+        .app-footer {
+            text-align: center;
+            padding: 22px 10px 6px;
+            color: var(--gray-medium);
+            font-size: 0.75rem;
+        }
+        .app-footer .footer-brand {
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--dark-text);
+            letter-spacing: 0.02em;
+        }
+        .app-footer .footer-brand span {
+            color: var(--primary);
+        }
+        .app-footer .footer-tag {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            letter-spacing: 0.05em;
+            margin-top: 4px;
+            display: block;
+        }
+
         /* Media Queries para Tablets e Desktops */
         @media (min-width: 768px) {
             body {
-                padding: 20px;
-                padding-bottom: 20px; /* Remove espaço extra do botão flutuante em telas maiores */
+                padding: 24px;
+                padding-bottom: 24px; /* Remove espaço extra do botão flutuante em telas maiores */
+            }
+            .container {
+                max-width: 860px;
             }
             h1 {
                 font-size: 2.5rem;
@@ -337,117 +500,241 @@
             }
         }
 
-        /* Estilos específicos para o PDF gerado - Mantidos os mesmos */
+        /* ===================== PDF — Ordem de Serviço ===================== */
         .pdf-container {
             width: 210mm;
-            padding: 15mm;
+            padding: 14mm 16mm;
             box-sizing: border-box;
             font-family: 'Arial', sans-serif;
             font-size: 10px;
-            line-height: 1.4;
-            background: white;
-            color: black;
+            line-height: 1.45;
+            background: #FFFFFF;
+            color: #1A2733;
         }
-        .pdf-header {
-            text-align: center;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #2563eb;
-            padding-bottom: 10px;
-        }
-        .pdf-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #2563eb;
-            text-align: center;
-        }
-        .pdf-subtitle {
-            font-size: 14px;
-            font-weight: normal;
-            color: #000;
-            text-align: center;
-        }
-        .pdf-cnpj {
-            font-size: 12px;
-            color: #555;
-            text-align: center;
-        }
-        .pdf-address {
-            font-size: 12px;
-            color: #555;
-            text-align: center;
-        }
-        .pdf-info {
+
+        /* Cabeçalho tipo timbrado: badge + dados da empresa à esquerda, título do documento à direita */
+        .pdf-letterhead {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 9px;
+            align-items: flex-start;
+            padding-bottom: 10px;
+            border-bottom: 2.5px solid #2F6FED;
+            margin-bottom: 14px;
         }
-        .pdf-summary {
-            background: #f8fafc;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            border: 1px solid #e2e8f0;
+        .pdf-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        .pdf-summary p {
-            margin: 3px 0;
-        }
-        .pdf-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 10px 0;
-            font-size: 9px;
-        }
-        .pdf-table th, .pdf-table td {
-            border: 1px solid #000;
-            padding: 5px;
-        }
-        .pdf-table th {
-            background-color: #dbeafe;
+        .pdf-badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 6px;
+            background: #2F6FED;
+            color: #FFFFFF;
+            font-size: 13px;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
-        .pdf-footer {
-            margin-top: 20px;
+        .pdf-company-name {
+            font-size: 13px;
+            font-weight: bold;
+            color: #12233E;
+        }
+        .pdf-company-meta {
+            font-size: 8.5px;
+            color: #5B6B7C;
+            margin-top: 2px;
+        }
+        .pdf-doc-tag {
+            text-align: right;
+        }
+        .pdf-doc-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #2F6FED;
+            letter-spacing: 0.04em;
+        }
+        .pdf-doc-meta {
+            font-size: 8.5px;
+            color: #5B6B7C;
+            margin-top: 3px;
+        }
+
+        /* Grade de dados da obra: 3 colunas alinhadas com rótulo + valor */
+        .pdf-info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 14px;
+            padding: 10px 12px;
+            background: #F5F8FC;
+            border: 1px solid #DCE6F2;
+            border-radius: 5px;
+        }
+        .pdf-info-item {
+            min-width: 0;
+        }
+        .pdf-info-label {
+            font-size: 7.5px;
+            font-weight: bold;
+            color: #2F6FED;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 2px;
+        }
+        .pdf-info-value {
+            font-size: 10px;
+            font-weight: bold;
+            color: #12233E;
+            word-break: break-word;
+        }
+
+        /* Dashboard de resumo: 4 blocos alinhados em grade */
+        .pdf-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .pdf-stat {
+            border: 1px solid #DCE6F2;
+            border-top: 2.5px solid #2F6FED;
+            border-radius: 4px;
+            padding: 8px 6px;
             text-align: center;
-            font-size: 8px;
-            color: #555;
-            border-top: 1px solid #ccc;
-            padding-top: 10px;
         }
+        .pdf-stat-value {
+            font-size: 15px;
+            font-weight: bold;
+            color: #12233E;
+        }
+        .pdf-stat-label {
+            font-size: 7px;
+            color: #5B6B7C;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-top: 2px;
+        }
+
+        /* Título de seção com régua azul */
+        .pdf-section-title {
+            font-size: 11px;
+            font-weight: bold;
+            color: #12233E;
+            margin: 16px 0 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #DCE6F2;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .pdf-section-title::before {
+            content: '';
+            width: 4px;
+            height: 11px;
+            background: #2F6FED;
+            border-radius: 1px;
+            display: inline-block;
+        }
+
         .pdf-detail-section {
-            margin-top: 15px;
+            margin-top: 4px;
         }
         .pdf-pavimento-title {
-            font-size: 12px;
+            font-size: 10.5px;
             font-weight: bold;
-            background-color: #dbeafe;
-            padding: 4px 6px;
-            margin: 10px 0 5px 0;
-            border-left: 3px solid #2563eb;
+            color: #12233E;
+            background-color: #EEF3FC;
+            padding: 5px 8px;
+            margin: 10px 0 6px 0;
+            border-left: 3px solid #2F6FED;
+            border-radius: 0 3px 3px 0;
         }
-        .pdf-pavimento-table {
+
+        /* Tabelas: cabeçalho azul sólido, zebra sutil, números alinhados à direita */
+        .pdf-pavimento-table, .pdf-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 10px;
-            font-size: 9px;
+            font-size: 8.5px;
         }
-        .pdf-pavimento-table th, .pdf-pavimento-table td {
-            border: 1px solid #000;
-            padding: 4px;
+        .pdf-pavimento-table th, .pdf-pavimento-table td,
+        .pdf-table th, .pdf-table td {
+            border: 1px solid #D5DEE8;
+            padding: 5px 6px;
             text-align: left;
         }
-        .pdf-pavimento-table th {
-            background-color: #e2e8f0;
+        .pdf-pavimento-table th, .pdf-table th {
+            background-color: #2F6FED;
+            color: #FFFFFF;
             font-weight: bold;
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .pdf-pavimento-table tbody tr:nth-child(even),
+        .pdf-table tbody tr:nth-child(even) {
+            background-color: #F5F8FC;
+        }
+        .pdf-num {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+        .pdf-table tr.pdf-total-row td {
+            font-weight: bold;
+            background-color: #EEF3FC;
+            color: #12233E;
+            border-top: 1.5px solid #2F6FED;
+        }
+
+        /* Observações: bloco de destaque */
+        .pdf-note {
+            background: #F5F8FC;
+            border: 1px solid #DCE6F2;
+            border-left: 3px solid #2F6FED;
+            border-radius: 0 4px 4px 0;
+            padding: 8px 10px;
+            font-size: 8.5px;
+            color: #33465A;
+            margin-bottom: 4px;
+        }
+        .pdf-note-label {
+            font-size: 7.5px;
+            font-weight: bold;
+            color: #2F6FED;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 3px;
+        }
+
+        /* Rodapé com regra fina e alinhamento entre marca e metadados */
+        .pdf-footer {
+            margin-top: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 7.5px;
+            color: #7A8896;
+            border-top: 1px solid #DCE6F2;
+            padding-top: 8px;
+        }
+        .pdf-footer strong {
+            color: #2F6FED;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>AC Infra Pro</h1>
-            <p class="subtitle">Calculadora Avançada de Infraestrutura para Ar Condicionado</p>
+            <p class="brand-eyebrow">Levantamento técnico de campo</p>
+            <h1>KC<span>medidas</span></h1>
+            <p class="subtitle">Cálculo de infraestrutura e emissão de O.S. para Ar Condicionado</p>
         </header>
+
 
         <div class="card">
             <h2>Dados da Obra</h2>
@@ -499,34 +786,38 @@
 
             <div id="summaryInfo"></div>
             <h3>Detalhamento por Apartamento e Caixas Polares</h3>
-            <table id="detalheTable">
-                <thead>
-                    <tr>
-                        <th>Pavimento</th>
-                        <th>Apartamento</th>
-                        <th>Localização Caixa</th>
-                        <th>Tipo Material</th>
-                        <th>Tubulação (m)</th>
-                        <th>Altura Caixa (cm)</th>
-                        <th>Distância Caixa (cm)</th>
-                    </tr>
-                </thead>
-                <tbody id="detalheBody">
-                    <!-- Linhas serão inseridas aqui -->
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table id="detalheTable">
+                    <thead>
+                        <tr>
+                            <th>Pavimento</th>
+                            <th>Apartamento</th>
+                            <th>Localização Caixa</th>
+                            <th>Tipo Material</th>
+                            <th>Tubulação (m)</th>
+                            <th>Altura Caixa (cm)</th>
+                            <th>Distância Caixa (cm)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detalheBody">
+                        <!-- Linhas serão inseridas aqui -->
+                    </tbody>
+                </table>
+            </div>
             <h3>Quantitativo Total</h3>
-            <table id="totalTable">
-                <thead>
-                    <tr>
-                        <th>Material</th>
-                        <th>Quantidade Total</th>
-                    </tr>
-                </thead>
-                <tbody id="totalBody">
-                    <!-- Totais serão inseridos aqui -->
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table id="totalTable">
+                    <thead>
+                        <tr>
+                            <th>Material</th>
+                            <th>Quantidade Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="totalBody">
+                        <!-- Totais serão inseridos aqui -->
+                    </tbody>
+                </table>
+            </div>
 
             <div class="action-buttons">
                 <button id="exportPdfBtn" class="btn btn-success">📥 Exportar PDF</button>
@@ -538,6 +829,11 @@
         <div class="floating-btn hidden" id="floatingBtn">
             <button title="Finalizar e Calcular" id="floatingFinalizarBtn">✓</button>
         </div>
+
+        <footer class="app-footer">
+            <div class="footer-brand">KC<span>medidas</span></div>
+            <span class="footer-tag">FERRAMENTA DE MEDIÇÃO E EMISSÃO DE O.S. EM CAMPO</span>
+        </footer>
     </div>
 
     <script>
@@ -862,27 +1158,62 @@
             const totalTubosCobre = pavimentos.reduce((acc, p) => acc + p.apartamentos.reduce((aAcc, a) => aAcc + a.caixasPolares.reduce((cpAcc, cp) => cpAcc + (cp.tipo_material === 'cobre' ? cp.tubos : 0), 0), 0), 0);
             const totalTubosMultilayer = pavimentos.reduce((acc, p) => acc + p.apartamentos.reduce((aAcc, a) => aAcc + a.caixasPolares.reduce((cpAcc, cp) => cpAcc + (cp.tipo_material === 'multilayer' ? cp.tubos : 0), 0), 0), 0);
 
+            const agora = new Date();
+            const osNumero = `OS-${agora.getFullYear()}${String(agora.getMonth()+1).padStart(2,'0')}${String(agora.getDate()).padStart(2,'0')}-${String(agora.getHours()).padStart(2,'0')}${String(agora.getMinutes()).padStart(2,'0')}`;
+            const dataEmissao = agora.toLocaleDateString('pt-BR');
+
             let pdfContent = `
-                <div class="pdf-header">
-                    <div class="pdf-title">KAWAHALA CLIMATIZACAO LTDA</div>
-                    <div class="pdf-subtitle">CNPJ: 25.003.206/0001-04</div>
-                    <div class="pdf-address">R ALFREDO COUTINHO 95 CXPST 578 — Recife - PE<br>CEP 52061-130</div>
+                <div class="pdf-letterhead">
+                    <div class="pdf-brand">
+                        <div class="pdf-badge">KC</div>
+                        <div>
+                            <div class="pdf-company-name">KAWAHALA CLIMATIZAÇÃO LTDA</div>
+                            <div class="pdf-company-meta">CNPJ: 25.003.206/0001-04</div>
+                            <div class="pdf-company-meta">R. Alfredo Coutinho, 95 — CxPst 578 — Recife/PE — CEP 52061-130</div>
+                        </div>
+                    </div>
+                    <div class="pdf-doc-tag">
+                        <div class="pdf-doc-title">ORDEM DE SERVIÇO</div>
+                        <div class="pdf-doc-meta">Nº ${osNumero}</div>
+                        <div class="pdf-doc-meta">Emitida em ${dataEmissao}</div>
+                    </div>
                 </div>
-                <div class="pdf-info">
-                    <div><strong>Endereço:</strong> ${endereco}</div>
-                    <div><strong>Construtora:</strong> ${construtora}</div>
-                    <div><strong>Edifício:</strong> ${edificio}</div>
+
+                <div class="pdf-info-grid">
+                    <div class="pdf-info-item">
+                        <div class="pdf-info-label">Endereço da Obra</div>
+                        <div class="pdf-info-value">${endereco}</div>
+                    </div>
+                    <div class="pdf-info-item">
+                        <div class="pdf-info-label">Construtora</div>
+                        <div class="pdf-info-value">${construtora}</div>
+                    </div>
+                    <div class="pdf-info-item">
+                        <div class="pdf-info-label">Edifício</div>
+                        <div class="pdf-info-value">${edificio}</div>
+                    </div>
                 </div>
-                <div class="pdf-summary">
-                    <p><strong>Resumo:</strong></p>
-                    <p>- Total de Pavimentos: ${totalPavimentos}</p>
-                    <p>- Total de Apartamentos: ${totalAptos}</p>
-                    <p>- Tubulação Total: ${totalTubos.toFixed(2)} m</p>
-                    <p>- Tubulação Cobre: ${totalTubosCobre.toFixed(2)} m</p>
-                    <p>- Tubulação Multilayer: ${totalTubosMultilayer.toFixed(2)} m</p>
-                    <p>- Caixas Polares Totais: ${totalCaixasPolares}</p>
+
+                <div class="pdf-summary-grid">
+                    <div class="pdf-stat">
+                        <div class="pdf-stat-value">${totalPavimentos}</div>
+                        <div class="pdf-stat-label">Pavimentos</div>
+                    </div>
+                    <div class="pdf-stat">
+                        <div class="pdf-stat-value">${totalAptos}</div>
+                        <div class="pdf-stat-label">Apartamentos</div>
+                    </div>
+                    <div class="pdf-stat">
+                        <div class="pdf-stat-value">${totalTubos.toFixed(2)}m</div>
+                        <div class="pdf-stat-label">Tubulação Total</div>
+                    </div>
+                    <div class="pdf-stat">
+                        <div class="pdf-stat-value">${totalCaixasPolares}</div>
+                        <div class="pdf-stat-label">Caixas Polares</div>
+                    </div>
                 </div>
-                <h3 style="font-size: 12px; margin-top: 15px;">Detalhamento por Pavimento e Apartamento</h3>
+
+                <div class="pdf-section-title">Detalhamento por Pavimento e Apartamento</div>
                 <div class="pdf-detail-section">
             `;
 
@@ -893,10 +1224,10 @@
                         <tr>
                             <th>Apartamento</th>
                             <th>Localização Caixa</th>
-                            <th>Tipo Material</th>
+                            <th>Material</th>
                             <th>Tubulação (m)</th>
-                            <th>Altura Caixa (cm)</th>
-                            <th>Distância Caixa (cm)</th>
+                            <th>Altura (cm)</th>
+                            <th>Distância (cm)</th>
                         </tr>
                     </thead>
                     <tbody>`;
@@ -908,9 +1239,9 @@
                                 <td>${apt.descricao}</td>
                                 <td>${cp.descricao || 'Localização não especificada'}</td>
                                 <td>${cp.tipo_material === 'cobre' ? 'Cobre' : 'Multilayer'}</td>
-                                <td>${cp.tubos.toFixed(2)}</td>
-                                <td>${cp.altura.toFixed(1)}</td>
-                                <td>${cp.distancia.toFixed(1)}</td>
+                                <td class="pdf-num">${cp.tubos.toFixed(2)}</td>
+                                <td class="pdf-num">${cp.altura.toFixed(1)}</td>
+                                <td class="pdf-num">${cp.distancia.toFixed(1)}</td>
                             </tr>
                         `;
                     });
@@ -921,24 +1252,32 @@
 
             pdfContent += `
                 </div>
-                <h3 style="font-size: 12px; margin-top: 15px;">Observações</h3>
-                <p style="font-size: 10px;"><strong>A altura é definida do teto já acabado até a linha da parte de baixo da caixa de passagem, e a distância da parede é medida a partir da parede do lado esquerdo, no sentido da esquerda para direita até a lateral esquerda da caixa.</strong></p>
-                <h3 style="font-size: 12px; margin-top: 15px;">Quantitativo Total</h3>
+
+                <div class="pdf-section-title">Observação Técnica</div>
+                <div class="pdf-note">
+                    <div class="pdf-note-label">Critério de medição</div>
+                    A altura é definida do teto já acabado até a linha da parte de baixo da caixa de passagem. A distância da parede é medida a partir da parede do lado esquerdo, no sentido esquerda → direita, até a lateral esquerda da caixa.
+                </div>
+
+                <div class="pdf-section-title">Quantitativo Total</div>
                 <table class="pdf-table">
                     <thead>
                         <tr>
                             <th>Material</th>
-                            <th>Quantidade Total (m)</th>
+                            <th>Quantidade Total</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td>Tubulação Cobre (m)</td><td>${totalTubosCobre.toFixed(2)}</td></tr>
-                        <tr><td>Tubulação Multilayer (m)</td><td>${totalTubosMultilayer.toFixed(2)}</td></tr>
-                        <tr><td>Caixas Polares</td><td>${totalCaixasPolares}</td></tr>
+                        <tr><td>Tubulação Cobre</td><td class="pdf-num">${totalTubosCobre.toFixed(2)} m</td></tr>
+                        <tr><td>Tubulação Multilayer</td><td class="pdf-num">${totalTubosMultilayer.toFixed(2)} m</td></tr>
+                        <tr><td>Caixas Polares</td><td class="pdf-num">${totalCaixasPolares} un.</td></tr>
+                        <tr class="pdf-total-row"><td>Tubulação Total</td><td class="pdf-num">${totalTubos.toFixed(2)} m</td></tr>
                     </tbody>
                 </table>
+
                 <div class="pdf-footer">
-                    AC Infra Pro - Sistema de Gestão de Infraestrutura | Relatório gerado em ${new Date().toLocaleString('pt-BR')}
+                    <span><strong>KCmedidas</strong> — Ferramenta de Medição e Emissão de O.S.</span>
+                    <span>Documento Nº ${osNumero} · Gerado em ${agora.toLocaleString('pt-BR')}</span>
                 </div>
             `;
 
